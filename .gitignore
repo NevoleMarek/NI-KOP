@@ -9,3 +9,5 @@ results
 *.fdb*
 *.aux
 *.tex
+*.sh
+*.ipynb
