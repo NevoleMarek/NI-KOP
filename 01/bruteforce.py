@@ -17,6 +17,8 @@ class Bruteforce:
         return self._stats
 
     def __bruteforce(self, item_id, current_weight, current_price):
+        self._stats['configs_tried'] += 1
+
         if current_weight > self.instance.capacity:
             return False
 
@@ -26,17 +28,14 @@ class Bruteforce:
         if item_id == len(self.instance.items):
             return False
 
-        for truth_value in [1,0]:
+        # Add item_id into bag
+        if self.__bruteforce(item_id + 1,
+                            current_weight + self.instance.items[item_id][0],
+                            current_price + self.instance.items[item_id][1]):
+            return True
 
-            if truth_value:
-                self._stats['configs_tried'] += 1
-                current_weight += self.instance.items[item_id][0]
-                current_price += self.instance.items[item_id][1]
+        # Do not add item_id into bag
+        if self.__bruteforce(item_id + 1, current_weight, current_price):
+            return True
 
-            if self.__bruteforce(item_id + 1, current_weight, current_price):
-                return True
-
-            if truth_value:
-                current_weight -= self.instance.items[item_id][0]
-                current_price -= self.instance.items[item_id][1]
         return False
