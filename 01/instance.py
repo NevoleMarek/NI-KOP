@@ -10,9 +10,9 @@ class Bag:
         bag = cls()
         input_split = line.split()
         bag.id = input_split[0]
-        bag.capacity = input_split[2]
-        bag.min_price = input_split[3]
+        bag.capacity = int(input_split[2])
+        bag.min_price = int(input_split[3])
         for i in range(len(input_split[4:])//2):
-            item = (input_split[2 * i + 4], input_split[2* i + 5])
+            item = (int(input_split[2 * i + 4]), int(input_split[2* i + 5]))
             bag.items.append(item)
         return bag
