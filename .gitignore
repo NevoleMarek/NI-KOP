@@ -11,3 +11,5 @@ results
 *.tex
 *.sh
 *.ipynb
+*.out
+img
