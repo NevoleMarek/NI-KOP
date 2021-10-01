@@ -7,6 +7,7 @@ class BranchAndBound:
             'solved' : False,
             'configs_tried' : 0,
             'best_cost': 0,
+            'best_weight': 0,
             'solution': [0 for i in range(len(instance.items))]
 
         }
@@ -31,6 +32,7 @@ class BranchAndBound:
 
         if current_cost > self._stats['best_cost']:
             self._stats['best_cost'] = current_cost
+            self._stats['best_weight'] = current_weight
             self._stats['solution'] = copy(current_solution)
 
         if current_cost + remaining_cost < self._stats['best_cost']:

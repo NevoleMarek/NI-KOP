@@ -29,9 +29,18 @@ def main():
             stats = solver.stats()
             sol_line = next(sol_file).split()
             opt = int(sol_line[2])
-            #comb = [int(i) for i in sol_line[3:]]
+            comb = [int(i) for i in sol_line[3:]]
+            """
+            if comb != stats['solution']:
+                print(instance.capacity)
+                print(stats['best_weight'])
+                print(instance.items)
+                print(comb)
+                print(stats['solution'])
+            """
             if opt != stats['best_cost']:
-                print(line)
+                print(sol_line)
+                print(stats['solution'])
             res_file.write(f'{instance.id},{stats["configs_tried"]}\n')
 
 
