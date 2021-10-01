@@ -24,13 +24,13 @@ class Redux:
 
         # Find the single best item to fit in bag and compare with greedy
         # heuristic result. Return the best ot the two.
-        for item_id, item in enumerate(sorted_items):
+        for item in sorted(self.instance.items, key=lambda x: x[1], reverse = True):
             if item[0] <= self.instance.capacity:
                 if item[1] > self._stats['best_cost']:
                     self._stats['best_cost'] = item[1]
                     self._stats['best_weight'] = item[0]
-                    self._stats['solution'] = [0 for i in range(len(instance.items))]
-                    self._stats['solution'][orig_pos[item_id]] = 1
+                    self._stats['solution'] = [0 for i in range(len(self.instance.items))]
+                    self._stats['solution'][self.instance.items.index(item)] = 1
                 break
 
 
