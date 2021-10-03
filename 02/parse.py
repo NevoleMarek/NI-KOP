@@ -29,5 +29,12 @@ class Parser:
                 ' RDX - Redux greedy heuristics,'
                 ' FPTAS - Fully polynomial-time approximation scheme using DP.'
                 ' Default is BNB.'))
+        self.parser.add_argument(
+            '--error',
+            type=float,
+            default=1,
+            help=(
+                'Error parameter for FPTAS method.'
+                ' Default is 1.'))
 
         return self.parser.parse_args()
