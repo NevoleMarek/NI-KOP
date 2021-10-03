@@ -52,6 +52,6 @@ class DP:
             for j in range(i):
                 if self._dp[cost][i - (j + 1)] != self._dp[cost][i - j]:
                     cost -= self.instance.items[(i - 1) - j][1]
-                    self._stats['solution'][i - 1] = 1
+                    self._stats['solution'][(i - 1) - j] = 1
                     i -= j
                     break
