@@ -47,11 +47,7 @@ class DP:
                 break
 
         cost = self._stats['best_cost']
-        i = len(self.instance.items)
-        while cost != 0:
-            for j in range(i):
-                if self._dp[cost][i - (j + 1)] != self._dp[cost][i - j]:
-                    cost -= self.instance.items[(i - 1) - j][1]
-                    self._stats['solution'][(i - 1) - j] = 1
-                    i -= j
-                    break
+        for i in range(len(self.instance.items), 0, -1):
+            if self._dp[cost, i - 1] != self._dp[cost, i]:
+                self._stats['solution'][i - 1] = 1
+                cost -= self.instance.items[i - 1][1]

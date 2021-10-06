@@ -11,7 +11,6 @@ class FPTAS:
             'best_cost': 0,
             'best_weight': 0,
             'solution': [0 for i in range(len(instance.items))]
-
         }
 
     def solve(self, error):
@@ -23,7 +22,7 @@ class FPTAS:
         # Find item with highest price that can fit in the bag
         for weight, cost in sorted(self.instance.items, key = lambda x: x[1], reverse=True):
             max_cost = cost
-            if weight < self.instance.capacity:
+            if weight <= self.instance.capacity:
                 break
 
         # Modify price of each item to cost categories according to set error
@@ -68,12 +67,7 @@ class FPTAS:
                 break
 
         cost = self._stats['best_cost']
-        i = len(items)
-        while cost != 0:
-            for j in range(i):
-
-                if self._dp[cost, i - (j + 1)] != self._dp[cost, i - j]:
-                    cost -= items[(i - 1) - j][1]
-                    self._stats['solution'][(i - 1) - j] = 1
-                    i -= j
-                    break
+        for i in range(len(self.instance.items), 0, -1):
+            if self._dp[cost, i - 1] != self._dp[cost, i]:
+                self._stats['solution'][i - 1] = 1
+                cost -= items[i - 1][1]
