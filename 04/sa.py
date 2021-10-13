@@ -1,13 +1,11 @@
 import math
-from random import choice
+from random import choice, random
 from copy import deepcopy
 
 import numpy as np
-from numpy import random
 
 def cooling_schedule(temp, alpha, beta = 0):
     return alpha * temp + beta
-
 
 class SimulatedAnnealing:
     def __init__(self, instance, alpha, beta = 0):
@@ -18,6 +16,7 @@ class SimulatedAnnealing:
         self._current_cost = 0
         self._current_weight = 0
         self._solved = False
+        self._items = []
         self._stats = {
             'cost_in_time': [],
             'temperature_in_time': [],
@@ -31,30 +30,33 @@ class SimulatedAnnealing:
         return self._stats
 
     def _discard_useless_items(self):
-        self._instance.items = [item for item in self._instance.items if item[0] < self._instance.capacity]
-
+        self._items = [i for i, item in enumerate(self._instance.items) if item[0] <= self._instance.capacity]
 
     def _random_assignment(self):
-        perm = random.permutation(np.array([i for i in range(len(self._instance.items))]))
+        perm = np.random.permutation(np.array(self._items))
         weight = 0
         cost = 0
-        items_in_bag = {}
+        items_in_bag = set()
         for i in perm:
-            if self.instance.items[i][0] + weight > self.instance.capacity:
-                break
+            if self._instance.items[i][0] + weight > self._instance.capacity:
+                continue
 
-            weight += self.instance.items[i][0]
-            cost += self.instance.items[i][1]
+            weight += self._instance.items[i][0]
+            cost += self._instance.items[i][1]
             items_in_bag.add(i)
 
         return items_in_bag, weight, cost
 
-    def _initial_temperature(self, items_in_bag):
-        pass
+    def _initial_temperature(self):
+        items = sorted(self._instance.items, key = lambda item: item[1], reverse = True)
+        delta = items[0][1] - items[-1][1]
+        temperature = abs(delta/math.log(0.8))
+        return temperature
+
 
     def _random_item(self):
         """ Return id of random item"""
-        return choice(range(len(self._instance.items)))
+        return choice(self._items)
 
     def _next_solution(self, items_in_bag):
         new_items_in_bag = deepcopy(items_in_bag)
@@ -62,7 +64,7 @@ class SimulatedAnnealing:
         new_cost = self._current_cost
 
         item_to_add = None
-        if len(self._instance.items) != len(new_items_in_bag):
+        if len(self._items) != len(new_items_in_bag):
             item_to_add = self._random_item()
             while item_to_add in new_items_in_bag:
                 item_to_add = self._random_item()
@@ -71,7 +73,7 @@ class SimulatedAnnealing:
             return items_in_bag, new_weight, new_cost
 
         # Drop random items until items[item_id] can fit in the bag
-        while (self._instance.items[item_to_add][0] + self._current_weight) > self._instance.capacity:
+        while (self._instance.items[item_to_add][0] + new_weight) > self._instance.capacity:
 
             item_to_remove = self._random_item()
             while item_to_remove not in new_items_in_bag:
@@ -87,39 +89,48 @@ class SimulatedAnnealing:
 
         return new_items_in_bag, new_weight, new_cost
 
-
-
     def solve(self):
         if self._solved:
             raise Exception(message='Already solved.')
         self._solved = True
 
         self._discard_useless_items()
-
-        items_in_bag= self._random_assignment()
+        items_in_bag, weight, cost = self._random_assignment()
 
         self._current_weight = weight
         self._current_cost = cost
-        self._stats['cost_in_time'].append(cost)
+        self._stats['cost_in_time'].append(self._current_cost)
 
-        temperature = self._initial_temperature(items_in_bag)
+        temperature = self._initial_temperature()
 
         self._stats['temperature_in_time'].append(temperature)
 
-        iter_limit = len(self.instance.items) * 20
+        iter_limit = len(self._instance.items) * 10
         iters = 0
         while iters < iter_limit:
 
             new_items_in_bag, new_weight, new_cost = self._next_solution(items_in_bag)
             delta = new_cost - self._current_cost
-            if new_cost > self._current_cost or math.exp(delta/temperature) > random.random(0,1):
+
+            if new_cost > self._current_cost:
                 items_in_bag = new_items_in_bag
-                weight = new_weight
-                cost = new_cost
+                self._current_weight = new_weight
+                self._current_cost = new_cost
                 iters = 0
+            elif math.exp(delta/temperature) > random():
+                items_in_bag = new_items_in_bag
+                self._current_weight = new_weight
+                self._current_cost = new_cost
+                iters += 1
             else:
                 iters += 1
 
             temperature = cooling_schedule(temperature, self._alpha, self._beta)
             self._stats['temperature_in_time'].append(temperature)
-            self._stats['cost_in_time'].append(cost)
+            self._stats['cost_in_time'].append(self._current_cost)
+            self._stats['iterations'] += 1
+            #print(iters, items_in_bag, self._current_weight, self._current_cost, temperature)
+        for i in items_in_bag:
+            self._stats['solution'][i] = 1
+        self._stats['best_cost'] = self._current_cost
+        self._stats['best_weight'] = self._current_weight
