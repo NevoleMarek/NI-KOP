@@ -28,5 +28,15 @@ class Parser:
             help=(
                 'Beta parameter for cooling schedule.'
                 ' Default is 0'))
+        self.parser.add_argument(
+            '--temp_prob',
+            type=float,
+            default=0.8,
+            help=(
+                'Parameter used in computation of initial temperature.'
+                ' Determines with what probability the move, where best item'
+                ' (in terms of price) '
+                ' is replaced with the worst item, is accepted.'
+                ' Default is 0.8'))
 
         return self.parser.parse_args()

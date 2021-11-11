@@ -8,11 +8,12 @@ def cooling_schedule(temp, alpha, beta = 0):
     return alpha * temp + beta
 
 class SimulatedAnnealing:
-    def __init__(self, instance, alpha, beta = 0):
+    def __init__(self, instance, alpha, beta = 0, temp_prob = 0.8):
         self._instance = instance
         self._n = len(instance.items)
         self._alpha = alpha
         self._beta = beta
+        self._temp_prob = temp_prob
         self._current_cost = 0
         self._current_weight = 0
         self._solved = False
@@ -50,7 +51,7 @@ class SimulatedAnnealing:
     def _initial_temperature(self):
         items = sorted(self._instance.items, key = lambda item: item[1], reverse = True)
         delta = items[0][1] - items[-1][1]
-        temperature = abs(delta/math.log(0.8))
+        temperature = abs(delta/math.log(self._temp_prob))
         return temperature
 
 
@@ -105,13 +106,16 @@ class SimulatedAnnealing:
 
         self._stats['temperature_in_time'].append(temperature)
 
-        iter_limit = len(self._instance.items) * 10
+        best_cost = cost
+        best_weight = weight
+        best_bag = deepcopy(items_in_bag)
+
+        iter_limit = len(self._instance.items) * 5
         iters = 0
         while iters < iter_limit:
 
             new_items_in_bag, new_weight, new_cost = self._next_solution(items_in_bag)
             delta = new_cost - self._current_cost
-
             if new_cost > self._current_cost:
                 items_in_bag = new_items_in_bag
                 self._current_weight = new_weight
@@ -125,12 +129,17 @@ class SimulatedAnnealing:
             else:
                 iters += 1
 
+            if best_cost < self._current_cost:
+                best_cost = self._current_cost
+                best_weight = self._current_weight
+                best_bag = deepcopy(items_in_bag)
+
             temperature = cooling_schedule(temperature, self._alpha, self._beta)
             self._stats['temperature_in_time'].append(temperature)
             self._stats['cost_in_time'].append(self._current_cost)
             self._stats['iterations'] += 1
             #print(iters, items_in_bag, self._current_weight, self._current_cost, temperature)
-        for i in items_in_bag:
+        for i in best_bag:
             self._stats['solution'][i] = 1
-        self._stats['best_cost'] = self._current_cost
-        self._stats['best_weight'] = self._current_weight
+        self._stats['best_cost'] = best_cost
+        self._stats['best_weight'] = best_weight

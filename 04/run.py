@@ -1,38 +1,40 @@
 from parse import Parser
-from time import process_time
+import timeit
 from instance import Bag
+import json
 
 from sa import SimulatedAnnealing
 
 
 def main():
     args = Parser().parse()
-    res = args.file.replace('test', 'result').replace('inst', 'sa')
+    res = args.file.replace('test', 'result').replace('inst', f'sa_{args.alpha}_{args.temp_prob}')
     sol = args.file.replace('inst', 'sol')
-    with open(args.file) as in_file, open(res, 'w') as res_file, open(sol) as sol_file:
+    data = []
+    with open(args.file) as in_file, open(sol) as sol_file, open(res, 'w') as res_file:
         res_file.write('id,time_taken,sum_of_costs,optimal,best_solution\n')
+
         i = 0
         for line in in_file:
             instance = Bag.from_line(line)
-            solver = SimulatedAnnealing(instance, args.alpha, args.beta)
-            start = process_time()
+            solver = SimulatedAnnealing(instance, args.alpha, args.beta, args.temp_prob)
+            start = timeit.default_timer()
             solver.solve()
-            end = process_time()
-            stats = solver.stats()
+            end = timeit.default_timer()
+
 
             sol_line = next(sol_file).split()
             while int(sol_line[0]) != instance.id:
                 sol_line = next(sol_file).split()
             opt = int(sol_line[2])
             comb = [int(i) for i in sol_line[3:]]
-            """
-            if comb != stats['solution']:
-                print(instance.capacity)
-                print(stats['best_weight'])
-                print(instance.items)
-                print(comb)
-                print(stats['solution'])
-            """
+
+            stats = solver.stats()
+            stats['id'] = instance.id
+            stats['time'] = end - start
+            stats['optimal'] = opt
+            data.append(stats)
+
             if opt != stats['best_cost']:
                 i += 1
                 """
@@ -43,6 +45,10 @@ def main():
                 print(stats['best_weight'])
                 print(comb)
                 print(stats['solution'])
+                """
+            """
+
+            """
             res_file.write(
                 f'{instance.id},'
                 f'{end-start},'
@@ -50,8 +56,11 @@ def main():
                 f'{opt},'
                 f'{stats["best_cost"]}\n'
             )
-                """
         print(i)
+
+   # with open('result/n40.dat', 'w') as res_file:
+    #    json.dump(data, res_file)
+
 
 
 
