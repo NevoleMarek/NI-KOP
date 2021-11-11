@@ -53,7 +53,7 @@ def main():
                     stats = solver.stats()
                 else: #4
                     start = process_time()
-                    for j in range(10000):
+                    for j in range(1000):
                         solver = method[args.method](instance)
                         solver.solve()
                         stats = solver.stats()
