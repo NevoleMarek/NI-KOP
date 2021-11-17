@@ -1,0 +1,4 @@
+Robustnost (permutace predmetu)
+poměru kapacity batohu k sumární váze
+korelaci cena/váha
+rozložení vah a granularitě
