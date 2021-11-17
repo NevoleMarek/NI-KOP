@@ -1,4 +1,4 @@
-# Task 02 - Knapsack 0/1 problem
+# Task 03 - Knapsack 0/1 problem
 
 -------
 
